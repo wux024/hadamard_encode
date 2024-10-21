@@ -1,0 +1,50 @@
+# .gitignore
+
+# Ignore the datasets folder and all its contents
+datasets/
+
+# Ignore OS-generated files
+*.DS_Store
+Thumbs.db
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.obj
+*.egg-info
+
+# Ignore virtual environment and cache files
+venv/
+__pycache__/
+
+# Ignore IDE or editor-generated files
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+*.log
+
+# Ignore log files
+*.log
+
+# Ignore test result files
+*.test
+*.test.xml
+
+# Ignore Jupyter Notebook checkpoint files
+.ipynb_checkpoints/
+
+# Ignore cache files
+.cache/
+
+# Ignore temporary files
+tmp/
+*.tmp
+
+# Ignore build directories
+build/
+dist/
