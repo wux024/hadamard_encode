@@ -5,7 +5,7 @@ import argparse
 import os
 
 from spi import HadamardTransform, HadamardTransformExtended
-from spi import image_to_optical_blocks, is_power_of_two
+from spi import image_to_optical_blocks, is_power_of_two, measure_time
 
 try:
     import cupy as np
@@ -191,4 +191,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # measure_time(main)
+    measure_time(main)

@@ -1,8 +1,16 @@
 # some functions are used in the main program
 
 import cv2
-import numpy as np
 from datetime import datetime
+try:
+    import cupy as np
+    if np.cuda.runtime.getDeviceCount() > 0:
+        print('CUDA device found and using CuPy (GPU)')
+    else:
+        raise ImportError('No CUDA device found')
+except ImportError as e:
+    import numpy as np
+    print('No CUDA device found and using NumPy (CPU)')
 
 
 def measure_time(func, *args, **kwargs):

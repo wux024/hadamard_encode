@@ -1,8 +1,16 @@
 # This code is used to transform the matrix in Hadamard.
 
-import numpy as np
 from scipy.linalg import hadamard
 from .utils import is_power_of_two
+try:
+    import cupy as np
+    if np.cuda.runtime.getDeviceCount() > 0:
+        print('CUDA device found and using CuPy (GPU)')
+    else:
+        raise ImportError('No CUDA device found')
+except ImportError as e:
+    import numpy as np
+    print('No CUDA device found and using NumPy (CPU)')
 
 class HadamardTransform:
     def __init__(self, optical_field_size=8):
