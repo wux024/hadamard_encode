@@ -2,9 +2,6 @@
 
 __version__ = '0.1.0'
 
-
-import os
-
 from .hadamard_transform import HadamardTransform
 from .hadamard_transform import HadamardTransformExtended
 from .encoder import Encoder

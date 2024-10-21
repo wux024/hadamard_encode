@@ -2,19 +2,14 @@
 
 from scipy.linalg import hadamard
 from .utils import is_power_of_two
-try:
-    import cupy as np
-    if np.cuda.runtime.getDeviceCount() > 0:
-        print('CUDA device found and using CuPy (GPU)')
-    else:
-        raise ImportError('No CUDA device found')
-except ImportError as e:
-    import numpy as np
-    print('No CUDA device found and using NumPy (CPU)')
+import numpy as np
+import torch
 
 class HadamardTransform:
-    def __init__(self, optical_field_size=8):
+    def __init__(self, optical_field_size=8, is_torch=False):
+        self.is_torch = is_torch
         self.optical_field_size = optical_field_size
+        
     
     @property
     def optical_field_size(self):
@@ -29,20 +24,27 @@ class HadamardTransform:
     
     def update_parameters(self):
         self.matrix_size = self._optical_field_size ** 2
-        self.hadamard_matrix = hadamard(self.matrix_size)
+        if self.is_torch:
+            self.hadamard_matrix = torch.tensor(hadamard(self.matrix_size))
+        else:
+            self.hadamard_matrix = hadamard(self.matrix_size)
         self.hadamard_inverse_matrix = self.hadamard_matrix.T / self.matrix_size
     
     def _check_matrix(self, matrix):
         if matrix.ndim > 2:
-            raise ValueError("Input matrix should be 2D or 1D.")
+            raise ValueError("We only support 1D or 2D matrix.")
         return matrix if matrix.ndim == 2 else matrix[:, np.newaxis]
     
     def transform(self, matrix):
+        if self.is_torch and not isinstance(matrix, torch.Tensor):
+            matrix = torch.tensor(matrix)
         matrix = self._check_matrix(matrix)
         return self.hadamard_matrix @ matrix
 
     def inverse_transform(self, matrix):
         matrix = self._check_matrix(matrix)
+        if self.is_torch and not isinstance(matrix, torch.Tensor):
+            matrix = torch.tensor(matrix)
         return self.hadamard_inverse_matrix @ matrix
     
     def extract_submatrix(self, hadamard_result, sub_optical_field_size):
@@ -63,8 +65,8 @@ class HadamardTransform:
             
 
 class HadamardTransformExtended(HadamardTransform):
-    def __init__(self, optical_field_size=8, window_size=(2, 2)):
-        super().__init__(optical_field_size)
+    def __init__(self, optical_field_size=8, window_size=(2, 2), is_torch=False):
+        super().__init__(optical_field_size=optical_field_size, is_torch=is_torch)
         self.window_size = window_size
     
     @property
@@ -81,7 +83,11 @@ class HadamardTransformExtended(HadamardTransform):
     
     def create_extended_hadamard_matrix(self):
         base_matrix = self.hadamard_matrix.reshape(self.matrix_size, self._optical_field_size, self._optical_field_size)
-        extended_matrix = np.kron(base_matrix, self.window)
+        if self.is_torch:
+            self.window = torch.tensor(self.window)
+            extended_matrix = torch.kron(base_matrix, self.window)
+        else:
+            extended_matrix = np.kron(base_matrix, self.window)
         self.hadamard_matrix = extended_matrix.reshape(self.matrix_size, -1)
         self.hadamard_inverse_matrix = self.hadamard_matrix.T / (self.window_ones_size * self.matrix_size)
         

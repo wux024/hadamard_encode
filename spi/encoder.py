@@ -1,14 +1,4 @@
-import cv2
 from .hadamard_transform import HadamardTransform, HadamardTransformExtended
-try:
-    import cupy as np
-    if np.cuda.runtime.getDeviceCount() > 0:
-        print('CUDA device found and using CuPy (GPU)')
-    else:
-        raise ImportError('No CUDA device found')
-except ImportError as e:
-    import numpy as np
-    print('No CUDA device found and using NumPy (CPU)')
 
 __Transform__ = {
     'hadamard': HadamardTransform,

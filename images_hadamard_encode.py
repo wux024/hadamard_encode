@@ -3,19 +3,9 @@
 import cv2
 import argparse
 import os
-
 from spi import HadamardTransform, HadamardTransformExtended
 from spi import image_to_optical_blocks, is_power_of_two, measure_time
-
-try:
-    import cupy as np
-    if np.cuda.runtime.getDeviceCount() > 0:
-        print('CUDA device found and using CuPy (GPU)')
-    else:
-        raise ImportError('No CUDA device found')
-except ImportError as e:
-    import numpy as np
-    print('No CUDA device found and using NumPy (CPU)')
+import numpy as np
 
 
 def check_path(dataset_input_base_path, split, image_name, optical_field_size=None, sub_optical_field_size=None, window_size=None, seed=None):
