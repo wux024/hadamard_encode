@@ -144,7 +144,7 @@ def main():
                 cv2.imwrite(sum_image_path, save_image_sum)
 
                 # image channels
-                channels = image_blocks.shape[-1]
+                channels = image.shape[-1]
 
                 # Reshape the image to a 2D array
                 image_reshaped = image_sum.reshape(-1, channels)
@@ -191,5 +191,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # measure_time(main)
+    # measure time for the whole program
     measure_time(main)
