@@ -8,7 +8,7 @@ from spi import image_to_optical_blocks, is_power_of_two, measure_time
 import numpy as np
 
 
-def check_path(dataset_input_base_path, split, image_name, optical_field_size=None, sub_optical_field_size=None, window_size=None, seed=None):
+def check_path(dataset_input_base_path, split, image_name, optical_field_size=None, sub_optical_field_size=None, window_size=None, seed=None, order=False):
     save_path = os.path.join(dataset_input_base_path)
     if optical_field_size is not None:
         save_path = os.path.join(save_path, f'images-{optical_field_size}x{optical_field_size}')
@@ -21,6 +21,9 @@ def check_path(dataset_input_base_path, split, image_name, optical_field_size=No
     
     if seed is not None:
         save_path += f'-{seed}'
+
+    if order:
+        save_path += '-inverse'
 
     if split is not None:
         save_path = os.path.join(save_path, split)
@@ -41,6 +44,7 @@ def parse_args():
     parser.add_argument('--window_size', type=int, nargs='+', default=None, help='window size for Extended Hadamard transform')
     parser.add_argument('--seed', type=int, default=None, help='random seed for reproducibility')
     parser.add_argument('--imgsz', type=int, default=None, help='process only a specific image size')
+    parser.add_argument('--order', action='store_true', help='order the sub-Hadamard matrices')
 
     args = parser.parse_args()
     
@@ -56,6 +60,7 @@ def main():
     window_size = args.window_size
     seed = args.seed
     imgsz = args.imgsz
+    order = args.order
 
     for optical_field_size in optical_field_sizes:
         if not is_power_of_two(optical_field_size):
@@ -162,7 +167,7 @@ def main():
                     if sub_optical_field_size >= optical_field_size:
                         continue
                     sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
-                                                                            sub_optical_field_size, order=True)
+                                                                            sub_optical_field_size, order=order)
                     sub_hadamard_result = sub_hadamard_result.reshape(sub_optical_field_size, 
                                                                           sub_optical_field_size, 
                                                                           channels)
@@ -172,7 +177,8 @@ def main():
                                                            optical_field_size=optical_field_size, 
                                                            sub_optical_field_size=sub_optical_field_size, 
                                                            window_size=window_size, 
-                                                           seed=seed)
+                                                           seed=seed,
+                                                           order=order)
                     # normalize the sub-Hadamard result
                     sub_hadamard_result = cv2.normalize(sub_hadamard_result, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
                     if imgsz is not None:
