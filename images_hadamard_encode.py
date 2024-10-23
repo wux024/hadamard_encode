@@ -162,7 +162,7 @@ def main():
                     if sub_optical_field_size >= optical_field_size:
                         continue
                     sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
-                                                                            sub_optical_field_size)
+                                                                            sub_optical_field_size, order=True)
                     sub_hadamard_result = sub_hadamard_result.reshape(sub_optical_field_size, 
                                                                           sub_optical_field_size, 
                                                                           channels)

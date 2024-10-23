@@ -10,7 +10,6 @@ class HadamardTransform:
         self.is_torch = is_torch
         self.optical_field_size = optical_field_size
         
-    
     @property
     def optical_field_size(self):
         return self._optical_field_size
@@ -47,13 +46,17 @@ class HadamardTransform:
             matrix = torch.tensor(matrix)
         return self.hadamard_inverse_matrix @ matrix
     
-    def extract_submatrix(self, hadamard_result, sub_optical_field_size):
+    def extract_submatrix(self, hadamard_result, sub_optical_field_size, order=False):
         if not is_power_of_two(sub_optical_field_size):
             raise ValueError("Sub optical field size must be a power of 2.")
         if sub_optical_field_size >= self._optical_field_size:
             raise ValueError("Sub optical field size must be smaller than the optical field size.")
         sub_matrix_size = sub_optical_field_size ** 2
-        return hadamard_result[:sub_matrix_size, :]
+        if not order:
+            return hadamard_result[:sub_matrix_size, :]
+        else:
+            return hadamard_result[-sub_matrix_size:, :][::-1]
+    
     
     def hadmard_matrix_random(self, seed=20241021):
         # create a random seed
