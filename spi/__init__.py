@@ -7,5 +7,10 @@ from .hadamard_transform import HadamardTransformExtended
 from .encoder import Encoder
 from .decoder import Decoder
 from .utils import *
+from .dataset import SPIDataloader
 
-__all__ = ['HadamardTransform', 'HadamardTransformExtended', 'Encoder', 'Decoder']
+__all__ = ['HadamardTransform', 
+           'HadamardTransformExtended', 
+           'Encoder', 
+           'Decoder', 
+           'SPIDataloader']

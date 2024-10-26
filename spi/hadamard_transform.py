@@ -46,13 +46,13 @@ class HadamardTransform:
             matrix = torch.tensor(matrix)
         return self.hadamard_inverse_matrix @ matrix
     
-    def extract_submatrix(self, hadamard_result, sub_optical_field_size, order=False):
+    def extract_submatrix(self, hadamard_result, sub_optical_field_size, inverse=False):
         if not is_power_of_two(sub_optical_field_size):
             raise ValueError("Sub optical field size must be a power of 2.")
         if sub_optical_field_size >= self._optical_field_size:
             raise ValueError("Sub optical field size must be smaller than the optical field size.")
         sub_matrix_size = sub_optical_field_size ** 2
-        if not order:
+        if not inverse:
             return hadamard_result[:sub_matrix_size, :]
         else:
             return hadamard_result[-sub_matrix_size:, :][::-1]
