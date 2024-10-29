@@ -13,7 +13,8 @@ class SPIDataloader:
                  window_size: Optional[Tuple[int, int]] = None, 
                  seed: Optional[int] = None, 
                  inverse: bool = False, 
-                 imgsz: Optional[int] = None):
+                 imgsz: Optional[int] = None,
+                 aliasing: bool = False):
         
         self.dataset_input_base_path = dataset_input_base_path
         self.split = split
@@ -22,6 +23,7 @@ class SPIDataloader:
         self.window_size = window_size
         self.seed = seed
         self.inverse = inverse
+        self.aliasing = aliasing
         self.imgsz = imgsz
     
     def update_attributes(self, **kwargs):
@@ -44,6 +46,8 @@ class SPIDataloader:
                 part.append(f'{self.window_size[0]}x{self.window_size[1]}')
             if self.inverse:
                 part.append('inverse')
+            if self.aliasing:
+                part.append('aliasing')
             if self.imgsz is not None:
                 part.append(f'{self.imgsz}')
             if self.seed is not None:

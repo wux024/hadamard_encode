@@ -1,14 +1,15 @@
-import torch
-from spi import HadamardTransform, HadamardTransformExtended, measure_time
-
+import numpy as np
+from scipy.linalg import hadamard
 
 if __name__ == '__main__':
     
-    optical_field_size = 128
+    a = hadamard(16)
+    b = a.T / 16
+    aa = a[:4,:]
+    bb = aa.T / 16
+    print(bb)
+    print(b[:,:4] == bb)
 
-    hadamard_transform1 = measure_time(HadamardTransform, optical_field_size, is_torch=False)
-
-    hadamard_transform2 = measure_time(HadamardTransformExtended, optical_field_size, is_torch=False)
 
 
 
