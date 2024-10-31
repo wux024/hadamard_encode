@@ -20,20 +20,20 @@
 #     --save_aliasing
 
 python .\images_hadamard_code.py `
-    --dataset lsp `
+    --dataset person `
     --optical-field-sizes 128 `
     --sub-optical-field-sizes 128 64 32 16 `
     --imgsz 256 `
     --save-aliasing `
     --save-hadamard
 
-# python .\images_hadamard_code.py `
-#     --dataset lsp `
-#     --optical-field-sizes 128 `
-#     --sub-optical-field-sizes 64 32 16 `
-#     --imgsz 256 `
-#     --save-hadamard `
-#     --inverse
+python .\images_hadamard_code.py `
+    --dataset person `
+    --optical-field-sizes 128 `
+    --sub-optical-field-sizes 64 32 16 `
+    --imgsz 256 `
+    --save-hadamard `
+    --inverse
 
 
 
