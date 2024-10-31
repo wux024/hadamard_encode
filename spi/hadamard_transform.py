@@ -40,7 +40,7 @@ class HadamardTransform:
     def sub_inverse_transform(self, hadamard_result, sub_optical_field_size):
         if not is_power_of_two(sub_optical_field_size):
             raise ValueError("Sub optical field size must be a power of 2.")
-        if sub_optical_field_size >= self._optical_field_size:
+        if sub_optical_field_size > self._optical_field_size:
             raise ValueError("Sub optical field size must be smaller than the optical field size.")
         if sub_optical_field_size == self._optical_field_size:
             return self.inverse_transform(hadamard_result)
@@ -52,8 +52,10 @@ class HadamardTransform:
     def extract_submatrix(self, hadamard_result, sub_optical_field_size, inverse=False):
         if not is_power_of_two(sub_optical_field_size):
             raise ValueError("Sub optical field size must be a power of 2.")
-        if sub_optical_field_size >= self._optical_field_size:
+        if sub_optical_field_size > self._optical_field_size:
             raise ValueError("Sub optical field size must be smaller than the optical field size.")
+        if sub_optical_field_size == self._optical_field_size:
+            return hadamard_result
         sub_matrix_size = sub_optical_field_size ** 2
         if not inverse:
             return hadamard_result[:sub_matrix_size, :]

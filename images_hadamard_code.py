@@ -10,14 +10,14 @@ def parse_args():
     
     # Add command-line arguments
     parser.add_argument('--dataset', type=str, default='mouse', help='Name of the dataset')
-    parser.add_argument('--optical_field_sizes', type=int, nargs='+', default=[128], help='Optical field size (can be multiple values separated by spaces)')
-    parser.add_argument('--sub_optical_field_sizes', type=int, nargs='+', default=None, help='Sub-optical field size (can be multiple values separated by spaces)')
-    parser.add_argument('--window_size', type=int, nargs='+', default=None, help='Window size for Extended Hadamard transform')
+    parser.add_argument('--optical-field-sizes', type=int, nargs='+', default=[128], help='Optical field size (can be multiple values separated by spaces)')
+    parser.add_argument('--sub-optical-field-sizes', type=int, nargs='+', default=None, help='Sub-optical field size (can be multiple values separated by spaces)')
+    parser.add_argument('--window-size', type=int, nargs='+', default=None, help='Window size for Extended Hadamard transform')
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
     parser.add_argument('--imgsz', type=int, default=None, help='Process only a specific image size')
     parser.add_argument('--inverse', action='store_true', help='Order the sub-Hadamard matrices')
-    parser.add_argument('--save_aliasing', action='store_true', help='Save the aliasing effect of the Hadamard transform')
-    parser.add_argument('--save_hadamard', action='store_true', help='Save the Hadamard transform result')
+    parser.add_argument('--save-aliasing', action='store_true', help='Save the aliasing effect of the Hadamard transform')
+    parser.add_argument('--save-hadamard', action='store_true', help='Save the Hadamard transform result')
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -121,7 +121,14 @@ def main():
                 for sub_optical_field_size in sub_optical_field_sizes:
                     # Inverse the submatrix if requested
                     if save_aliasing:
-                        datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
+                        if sub_optical_field_size > optical_field_size:
+                            continue
+                        elif sub_optical_field_size == optical_field_size:
+                            datasetloader.update_attributes(sub_optical_field_size=None, 
+                                                        inverse=False, 
+                                                        aliasing=False)
+                        else:
+                            datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
                                                         aliasing=True, 
                                                         inverse=False)
                         # Compute the aliasing effect of the Hadamard transform
@@ -148,6 +155,9 @@ def main():
                             continue
                         elif sub_optical_field_size == optical_field_size:
                             sub_hadamard_result = hadamard_result
+                            datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
+                                                        inverse=False, 
+                                                        aliasing=False)
                         else:
                             sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
                                                                                     sub_optical_field_size,
