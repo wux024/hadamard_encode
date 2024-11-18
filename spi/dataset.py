@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 
-__all__ = ['SPIDataloader']
+__all__ = ['SPIDataloader', 'SPIVideoLoader']
 
 class SPIDataloader:
     def __init__(self, dataset_input_base_path: str = 'datasets/mouse', 
@@ -107,6 +107,76 @@ class SPIDataloader:
             raise ValueError("Image path must be provided")
         cv2.imwrite(image_path, img)
 
+    def preprocess(self, img: np.ndarray) -> np.ndarray:
+        if self.imgsz is not None:
+            img = cv2.resize(img, (self.imgsz, self.imgsz))
+        return img
+
+    def postprocess(self, img: np.ndarray, imgsz: Optional[Tuple[int, int]] = None) -> np.ndarray:
+        if self.imgsz is not None and imgsz is not None:
+            img = cv2.resize(img, imgsz)
+        return img
+    
+    def normalize(self, img: np.ndarray) -> np.ndarray:
+        img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        return img
+    
+
+class SPIVideodataset:
+    def __init__(self, 
+                 video_base_path: str = 'videos',
+                 optical_field_size: Optional[int] = None, 
+                 sub_optical_field_size: Optional[int] = None, 
+                 window_size: Optional[Tuple[int, int]] = None, 
+                 seed: Optional[int] = None, 
+                 inverse: bool = False, 
+                 imgsz: Optional[int] = None,
+                 aliasing: bool = False):
+        self.video_base_path = video_base_path
+        self.optical_field_size = optical_field_size
+        self.sub_optical_field_size = sub_optical_field_size
+        self.window_size = window_size
+        self.seed = seed
+        self.inverse = inverse
+        self.imgsz = imgsz
+        self.aliasing = aliasing
+    
+    def update_attributes(self, **kwargs):
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                raise AttributeError(f"Attribute {key} not found in {self.__class__.__name__}")
+    
+    def build_video_path(self, video_name: str = "", original: bool = True) -> str:
+        path_parts = [self.video_base_path]
+        video_name_ = video_name.split('.')[0]
+        video_name_ext = video_name.split('.')[-1]
+        
+        if not original:
+            part = []
+            if self.optical_field_size is not None:
+                part.append(f'{video_name_}-{self.optical_field_size}x{self.optical_field_size}')
+            if self.sub_optical_field_size is not None:
+                part.append(f'{self.sub_optical_field_size}x{self.sub_optical_field_size}')
+            if self.window_size is not None:
+                part.append(f'{self.window_size[0]}x{self.window_size[1]}')
+            if self.inverse:
+                part.append('inverse')
+            if self.aliasing:
+                part.append('aliasing')
+            if self.imgsz is not None:
+                part.append(f'{self.imgsz}')
+            if self.seed is not None:
+                part.append(f'{self.seed}')
+            path_parts.append('-'.join(part))
+        else:
+            path_parts.append(video_name)
+        save_path = os.path.join(*path_parts)
+        save_path = save_path + '.' + video_name_ext
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        return save_path
+    
     def preprocess(self, img: np.ndarray) -> np.ndarray:
         if self.imgsz is not None:
             img = cv2.resize(img, (self.imgsz, self.imgsz))

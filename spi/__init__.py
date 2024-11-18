@@ -8,9 +8,11 @@ from .encoder import Encoder
 from .decoder import Decoder
 from .utils import *
 from .dataset import SPIDataloader
+from .dataset import SPIVideodataset
 
 __all__ = ['HadamardTransform', 
            'HadamardTransformExtended', 
            'Encoder', 
            'Decoder', 
-           'SPIDataloader']
+           'SPIDataloader',
+           'SPIVideodataset']
