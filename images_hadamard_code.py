@@ -119,7 +119,9 @@ def main():
                 for sub_optical_field_size in sub_optical_field_sizes:
                     # Inverse the submatrix if requested
                     if save_aliasing:
-                        if sub_optical_field_size > optical_field_size:
+                        if optical_field_size == imgsz:
+                            continue
+                        elif sub_optical_field_size > optical_field_size:
                             continue
                         elif sub_optical_field_size == optical_field_size:
                             datasetloader.update_attributes(sub_optical_field_size=None, 
