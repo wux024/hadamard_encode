@@ -70,7 +70,6 @@ def main():
     
     # Iterate over each optical field size
     for optical_field_size in optical_field_sizes:
-        print(f'Processing optical field size {optical_field_size} in {dataset} dataset')
         # Set the optical field size for the Hadamard transform
         hadamard_transform.optical_field_size = optical_field_size
         if window_size is not None:
