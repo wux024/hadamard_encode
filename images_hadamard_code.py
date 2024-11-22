@@ -117,11 +117,10 @@ def main():
 
                 # Iterate over each sub-optical field size
                 for sub_optical_field_size in sub_optical_field_sizes:
+
                     # Inverse the submatrix if requested
-                    if save_aliasing:
-                        if optical_field_size == imgsz:
-                            continue
-                        elif sub_optical_field_size > optical_field_size:
+                    if save_aliasing and sub_optical_field_size < imgsz:
+                        if sub_optical_field_size > optical_field_size:
                             continue
                         elif sub_optical_field_size == optical_field_size:
                             datasetloader.update_attributes(sub_optical_field_size=None, 
@@ -156,20 +155,20 @@ def main():
                             elif sub_optical_field_size == optical_field_size:
                                 sub_hadamard_result = hadamard_result
                                 datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
-                                                            inverse=False, 
-                                                            aliasing=False)
+                                                                inverse=False, 
+                                                                aliasing=False)
                             else:
                                 sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
-                                                                                        sub_optical_field_size,
-                                                                                        inverse=inverse)
+                                                                                            sub_optical_field_size,
+                                                                                            inverse=inverse)
                                 datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
-                                                            inverse=inverse, 
-                                                            aliasing=False)
+                                                                inverse=inverse, 
+                                                                aliasing=False)
 
                             # Reshape the submatrix to the original dimensions
                             sub_hadamard_result = sub_hadamard_result.reshape(sub_optical_field_size, 
-                                                                            sub_optical_field_size, 
-                                                                            channels)
+                                                                                sub_optical_field_size, 
+                                                                                channels)
                             # Normalize and postprocess the submatrix
                             sub_hadamard_result = datasetloader.normalize(sub_hadamard_result)
                             sub_hadamard_result = datasetloader.postprocess(sub_hadamard_result, (original_width, original_height))
