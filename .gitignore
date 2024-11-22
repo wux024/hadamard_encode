@@ -3,6 +3,7 @@
 # Ignore the datasets folder and all its contents
 datasets/
 videos/
+spidatas/
 
 # Ignore OS-generated files
 *.DS_Store
