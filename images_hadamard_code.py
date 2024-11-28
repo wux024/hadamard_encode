@@ -65,8 +65,6 @@ def main():
 
     # Choose the appropriate Hadamard transform class based on the window size
     hadamard_transform = HadamardTransformExtended() if args.window_size else HadamardTransform()
-    if seed is not None:
-        hadamard_transform.hadmard_matrix_random(seed)
     
     # Iterate over each optical field size
     for optical_field_size in optical_field_sizes:
