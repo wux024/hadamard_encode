@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--optical-field-sizes', type=int, nargs='+', default=[128], help='Optical field size (can be multiple values separated by spaces)')
     parser.add_argument('--sub-optical-field-sizes', type=int, nargs='+', default=None, help='Sub-optical field size (can be multiple values separated by spaces)')
     parser.add_argument('--window-size', type=int, nargs='+', default=None, help='Window size for Extended Hadamard transform')
-    parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
+    parser.add_argument('--hadamard-seed', type=int, default=None, help='Random seed for reproducibility')
     parser.add_argument('--imgsz', type=int, default=None, help='Process only a specific image size')
     parser.add_argument('--save-aliasing', action='store_true', help='Save the aliasing effect of the Hadamard transform')
     parser.add_argument('--save-hadamard', action='store_true', help='Save the Hadamard transform result')
@@ -38,7 +38,7 @@ def main():
     optical_field_sizes = args.optical_field_sizes
     sub_optical_field_sizes = args.sub_optical_field_sizes
     window_size = args.window_size
-    seed = args.seed
+    hadamard_seed = args.hadamard_seed
     imgsz = args.imgsz
     save_aliasing = args.save_aliasing
     save_hadamard = args.save_hadamard
@@ -60,7 +60,7 @@ def main():
     datasetloader = SPIDataloader(dataset_input_base_path=dataset_input_base_path,
                                   window_size=window_size,
                                   aliasing=save_aliasing,
-                                  seed=seed,
+                                  hadamard_seed=hadamard_seed,
                                   imgsz=imgsz)
 
     # Choose the appropriate Hadamard transform class based on the window size
@@ -78,8 +78,8 @@ def main():
             block_size = [optical_field_size, optical_field_size]
         
         # Set a random seed for reproducibility if provided
-        if seed is not None:
-            hadamard_transform.hadmard_matrix_random(seed)
+        if hadamard_seed is not None:
+            hadamard_transform.hadmard_matrix_random(hadamard_seed)
         
         # Update the dataset loader with the current optical field size
         datasetloader.update_attributes(optical_field_size=optical_field_size)
@@ -143,7 +143,8 @@ def main():
                         datasetloader.save(sub_aliasing_result, sub_aliasing_result_path)
 
                     if save_hadamard:
-                        for inverse in [True, False]:
+                        inverse_list = [False] if hadamard_seed is not None else [True, False]
+                        for inverse in inverse_list:
                             # Extract the submatrix from the Hadamard result
                             if sub_optical_field_size > optical_field_size:
                                 continue
@@ -173,7 +174,6 @@ def main():
                             sub_hadamard_result_path = datasetloader.build_dataset_path(image_name, original=False)
                             # Save the submatrix
                             datasetloader.save(sub_hadamard_result, sub_hadamard_result_path)
-
 
 if __name__ == '__main__':
     # Measure the execution time of the main function

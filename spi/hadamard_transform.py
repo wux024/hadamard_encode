@@ -63,9 +63,9 @@ class HadamardTransform:
             return hadamard_result[-sub_matrix_size:, :][::-1]
     
     
-    def hadmard_matrix_random(self, seed=20241021):
+    def hadmard_matrix_random(self, hadamard_seed=20241021):
         # create a random seed
-        np.random.seed(seed)
+        np.random.seed(hadamard_seed)
         # create a random hadamard matrix
         sorted = np.random.permutation(self.matrix_size)
         self.hadamard_matrix = self.hadamard_matrix[sorted]

@@ -11,7 +11,7 @@ class SPIDataloader:
                  optical_field_size: Optional[int] = None, 
                  sub_optical_field_size: Optional[int] = None, 
                  window_size: Optional[Tuple[int, int]] = None, 
-                 seed: Optional[int] = None, 
+                 hadamard_seed: Optional[int] = None, 
                  inverse: bool = False, 
                  imgsz: Optional[int] = None,
                  aliasing: bool = False):
@@ -21,7 +21,7 @@ class SPIDataloader:
         self.optical_field_size = optical_field_size
         self.sub_optical_field_size = sub_optical_field_size
         self.window_size = window_size
-        self.seed = seed
+        self.hadamard_seed = hadamard_seed
         self.inverse = inverse
         self.aliasing = aliasing
         self.imgsz = imgsz
@@ -50,8 +50,8 @@ class SPIDataloader:
                 part.append('aliasing')
             if self.imgsz is not None:
                 part.append(f'{self.imgsz}')
-            if self.seed is not None:
-                part.append(f'{self.seed}')
+            if self.hadamard_seed is not None:
+                part.append(f'{self.hadamard_seed}')
             path_parts.append('-'.join(part))
         else:
             path_parts.append('images')
@@ -128,7 +128,7 @@ class SPIVideodataset:
                  optical_field_size: Optional[int] = None, 
                  sub_optical_field_size: Optional[int] = None, 
                  window_size: Optional[Tuple[int, int]] = None, 
-                 seed: Optional[int] = None, 
+                 hadamard_seed: Optional[int] = None, 
                  inverse: bool = False, 
                  imgsz: Optional[int] = None,
                  aliasing: bool = False):
@@ -136,7 +136,7 @@ class SPIVideodataset:
         self.optical_field_size = optical_field_size
         self.sub_optical_field_size = sub_optical_field_size
         self.window_size = window_size
-        self.seed = seed
+        self.seed = hadamard_seed
         self.inverse = inverse
         self.imgsz = imgsz
         self.aliasing = aliasing
