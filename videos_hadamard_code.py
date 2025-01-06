@@ -119,7 +119,7 @@ def main():
                 # Iterate over each sub-optical field size
                 for sub_optical_field_size in sub_optical_field_sizes:
                     # Inverse the submatrix if requested
-                    if save_aliasing:
+                    if save_aliasing and sub_optical_field_size < imgsz:
                         if sub_optical_field_size > optical_field_size:
                             continue
                         elif sub_optical_field_size == optical_field_size:
@@ -148,35 +148,39 @@ def main():
                         video_writer[sub_aliasing_result_path].write(sub_aliasing_result)
 
                     if save_hadamard:
-                        datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
-                                                        inverse=inverse, 
-                                                        aliasing=False)
-                        # Extract the submatrix from the Hadamard result
-                        if sub_optical_field_size > optical_field_size:
-                            continue
-                        elif sub_optical_field_size == optical_field_size:
-                            sub_hadamard_result = hadamard_result
-                            datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
-                                                        inverse=False, 
-                                                        aliasing=False)
-                        else:
-                            sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
-                                                                                    sub_optical_field_size,
-                                                                                    inverse=inverse)
-                        # Reshape the submatrix to the original dimensions
-                        sub_hadamard_result = sub_hadamard_result.reshape(sub_optical_field_size, 
-                                                                        sub_optical_field_size, 
-                                                                        channels)
-                        # Normalize and postprocess the submatrix
-                        sub_hadamard_result = datasetloader.normalize(sub_hadamard_result)
-                        sub_hadamard_result = datasetloader.postprocess(sub_hadamard_result, (original_width, original_height))
-                        # Build the save path for the submatrix
-                        sub_hadamard_result_path = datasetloader.build_video_path(video, original=False)
-                        # Create a video writer if it does not exist
-                        if sub_hadamard_result_path not in video_writer:
-                            video_writer[sub_hadamard_result_path] = cv2.VideoWriter(sub_hadamard_result_path, fourcc, frame_rate, size)
-                        # Save the submatrix
-                        video_writer[sub_hadamard_result_path].write(sub_hadamard_result)
+                        inverse_list = [False] if hadamard_seed is not None else [True, False]
+                        for inverse in inverse_list:
+                            # Extract the submatrix from the Hadamard result
+                            if sub_optical_field_size > optical_field_size:
+                                continue
+                            elif sub_optical_field_size == optical_field_size and inverse:
+                                continue
+                            elif sub_optical_field_size == optical_field_size:
+                                sub_hadamard_result = hadamard_result
+                                datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
+                                                                inverse=False, 
+                                                                aliasing=False)
+                            else:
+                                sub_hadamard_result = hadamard_transform.extract_submatrix(hadamard_result, 
+                                                                                            sub_optical_field_size,
+                                                                                            inverse=inverse)
+                                datasetloader.update_attributes(sub_optical_field_size=sub_optical_field_size, 
+                                                                inverse=inverse, 
+                                                                aliasing=False)
+                            # Reshape the submatrix to the original dimensions
+                            sub_hadamard_result = sub_hadamard_result.reshape(sub_optical_field_size, 
+                                                                            sub_optical_field_size, 
+                                                                            channels)
+                            # Normalize and postprocess the submatrix
+                            sub_hadamard_result = datasetloader.normalize(sub_hadamard_result)
+                            sub_hadamard_result = datasetloader.postprocess(sub_hadamard_result, (original_width, original_height))
+                            # Build the save path for the submatrix
+                            sub_hadamard_result_path = datasetloader.build_video_path(video, original=False)
+                            # Create a video writer if it does not exist
+                            if sub_hadamard_result_path not in video_writer:
+                                video_writer[sub_hadamard_result_path] = cv2.VideoWriter(sub_hadamard_result_path, fourcc, frame_rate, size)
+                            # Save the submatrix
+                            video_writer[sub_hadamard_result_path].write(sub_hadamard_result)
             else:
                 break
         cap.release()

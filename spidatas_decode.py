@@ -13,20 +13,29 @@ def ensure_directory_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def process_and_save_image(data, sub_optical_field_size, file_name, output_type):
+def process_and_save_image(data, sub_optical_field_size, file_name, output_type, seed):
     if output_type == 'aliasing':
         result = hadamard_transform.sub_inverse_transform(data, sub_optical_field_size)
         result = result.reshape(optical_field_size, optical_field_size)
         result[:,0] = result[:,1]
-    else:
+    elif output_type == 'inverse' or output_type == 'normal':
         sub_hadamard_result = hadamard_transform.extract_submatrix(data, sub_optical_field_size, inverse=output_type=='inverse')
         result = sub_hadamard_result.reshape(sub_optical_field_size, sub_optical_field_size)
+    elif output_type == 'hadamard-seed':
+        np.random.seed(seed)
+        data = np.random.permutation(data)
+        sub_hadamard_result = hadamard_transform.extract_submatrix(data, sub_optical_field_size, inverse=False)
+        result = sub_hadamard_result.reshape(sub_optical_field_size, sub_optical_field_size)
+    else:
+        raise ValueError(f'Invalid output_type: {output_type}')
     
     result = cv2.normalize(result, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
     result = cv2.resize(result, (377, 377))
     
     if output_type == 'normal':
         folder_name = f'images-{optical_field_size}x{optical_field_size}-{sub_optical_field_size}x{sub_optical_field_size}'
+    elif output_type == 'hadamard-seed':
+        folder_name = f'images-{optical_field_size}x{optical_field_size}-{sub_optical_field_size}x{sub_optical_field_size}-{seed}'
     else:
         folder_name = f'images-{optical_field_size}x{optical_field_size}-{sub_optical_field_size}x{sub_optical_field_size}-{output_type}'
     
@@ -42,6 +51,7 @@ for file_name in os.listdir(data_path):
         data = f[data_key][()].T
     
     for sub_optical_field_size in sub_optical_field_sizes:
-        process_and_save_image(data, sub_optical_field_size, base_name, 'normal')
-        process_and_save_image(data, sub_optical_field_size, base_name, 'inverse')
-        process_and_save_image(data, sub_optical_field_size, base_name, 'aliasing')
+        # process_and_save_image(data, sub_optical_field_size, base_name, 'normal')
+        # process_and_save_image(data, sub_optical_field_size, base_name, 'inverse')
+        # process_and_save_image(data, sub_optical_field_size, base_name, 'aliasing')
+        process_and_save_image(data, sub_optical_field_size, base_name, 'hadamard-seed', 20241215)
