@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('--window-size', type=int, nargs='+', default=None, help='Window size for Extended Hadamard transform')
     parser.add_argument('--hadamard-seed', type=int, default=None, help='Random seed for reproducibility')
     parser.add_argument('--imgsz', type=int, default=None, help='Process only a specific image size')
+    parser.add_argument('--split', action='store_true', help='Split the aliasing')
     parser.add_argument('--save-aliasing', action='store_true', help='Save the aliasing effect of the Hadamard transform')
     parser.add_argument('--save-hadamard', action='store_true', help='Save the Hadamard transform result')
 
@@ -40,6 +41,7 @@ def main():
     window_size = args.window_size
     hadamard_seed = args.hadamard_seed
     imgsz = args.imgsz
+    split = args.split
     save_aliasing = args.save_aliasing
     save_hadamard = args.save_hadamard
 
@@ -134,6 +136,11 @@ def main():
                         sub_aliasing_result = sub_aliasing_result.reshape(optical_field_size, 
                                                                            optical_field_size, 
                                                                            channels)
+                        
+                        if split and sub_optical_field_size < optical_field_size:
+                            split_size = (optical_field_size // sub_optical_field_size) ** 2
+                            sub_aliasing_result = sub_aliasing_result[:optical_field_size // split_size, :, :]
+
                         # Normalize and postprocess the aliasing effect
                         sub_aliasing_result = datasetloader.normalize(sub_aliasing_result)
                         sub_aliasing_result = datasetloader.postprocess(sub_aliasing_result, (original_width, original_height))

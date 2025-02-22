@@ -13,11 +13,17 @@ def ensure_directory_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def process_and_save_image(data, sub_optical_field_size, file_name, output_type, seed):
+def process_and_save_image(data, sub_optical_field_size, file_name, output_type, seed=None, split=False):
     if output_type == 'aliasing':
         result = hadamard_transform.sub_inverse_transform(data, sub_optical_field_size)
         result = result.reshape(optical_field_size, optical_field_size)
         result[:,0] = result[:,1]
+        if split:
+            if sub_optical_field_size < optical_field_size:
+                split_size = (optical_field_size // sub_optical_field_size) ** 2
+                result = result[:optical_field_size // split_size, :]
+            else:
+                return
     elif output_type == 'inverse' or output_type == 'normal':
         sub_hadamard_result = hadamard_transform.extract_submatrix(data, sub_optical_field_size, inverse=output_type=='inverse')
         result = sub_hadamard_result.reshape(sub_optical_field_size, sub_optical_field_size)
@@ -53,5 +59,5 @@ for file_name in os.listdir(data_path):
     for sub_optical_field_size in sub_optical_field_sizes:
         # process_and_save_image(data, sub_optical_field_size, base_name, 'normal')
         # process_and_save_image(data, sub_optical_field_size, base_name, 'inverse')
-        # process_and_save_image(data, sub_optical_field_size, base_name, 'aliasing')
-        process_and_save_image(data, sub_optical_field_size, base_name, 'hadamard-seed', 20241215)
+        process_and_save_image(data, sub_optical_field_size, base_name, 'aliasing', split=True)
+        # process_and_save_image(data, sub_optical_field_size, base_name, 'hadamard-seed', 20241215)
