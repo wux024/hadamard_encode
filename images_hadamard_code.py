@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--split', action='store_true', help='Split the aliasing')
     parser.add_argument('--save-aliasing', action='store_true', help='Save the aliasing effect of the Hadamard transform')
     parser.add_argument('--save-hadamard', action='store_true', help='Save the Hadamard transform result')
+    parser.add_argument('--reshape-original', action='store_true', help='Reshape the original image')
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -44,6 +45,7 @@ def main():
     split = args.split
     save_aliasing = args.save_aliasing
     save_hadamard = args.save_hadamard
+    reshape_original = args.reshape_original
 
     # Validate the sizes
     validate_sizes(optical_field_sizes + sub_optical_field_sizes)
@@ -87,9 +89,9 @@ def main():
         datasetloader.update_attributes(optical_field_size=optical_field_size)
         
         # Iterate over each dataset split (train, val, test)
-        for split in dataset_splits:
+        for dataset_split in dataset_splits:
             # Update the dataset loader with the current split
-            datasetloader.update_attributes(split=split)
+            datasetloader.update_attributes(dataset_split=dataset_split)
             # Load the image paths for the current split
             image_paths = datasetloader.load()
             # Process each image in the current split
@@ -131,19 +133,23 @@ def main():
                                                         inverse=False)
                         # Compute the aliasing effect of the Hadamard transform
                         sub_aliasing_result = hadamard_transform.sub_inverse_transform(hadamard_result, 
-                                                                                       sub_optical_field_size)
-                        # Reshape the aliasing effect to the original dimensions
-                        sub_aliasing_result = sub_aliasing_result.reshape(optical_field_size, 
-                                                                           optical_field_size, 
-                                                                           channels)
+                                                                                       sub_optical_field_size,
+                                                                                       split=split)
                         
-                        if split and sub_optical_field_size < optical_field_size:
-                            split_size = (optical_field_size // sub_optical_field_size) ** 2
-                            sub_aliasing_result = sub_aliasing_result[:optical_field_size // split_size, :, :]
+                        # Reshape the aliasing effect to the original dimensions
+                        if not split:
+                            sub_aliasing_result = sub_aliasing_result.reshape(optical_field_size, 
+                                                                            optical_field_size, 
+                                                                            channels)
+                        else:
+                            sub_aliasing_result = sub_aliasing_result.reshape(-1,
+                                                                                optical_field_size,
+                                                                                channels) 
 
                         # Normalize and postprocess the aliasing effect
                         sub_aliasing_result = datasetloader.normalize(sub_aliasing_result)
-                        sub_aliasing_result = datasetloader.postprocess(sub_aliasing_result, (original_width, original_height))
+                        if reshape_original:
+                            sub_aliasing_result = datasetloader.postprocess(sub_aliasing_result, (original_width, original_height))
                         # Build the save path for the aliasing effect
                         sub_aliasing_result_path = datasetloader.build_dataset_path(image_name, original=False)
                         # Save the aliasing effect
@@ -176,7 +182,8 @@ def main():
                                                                                 channels)
                             # Normalize and postprocess the submatrix
                             sub_hadamard_result = datasetloader.normalize(sub_hadamard_result)
-                            sub_hadamard_result = datasetloader.postprocess(sub_hadamard_result, (original_width, original_height))
+                            if reshape_original:
+                                sub_hadamard_result = datasetloader.postprocess(sub_hadamard_result, (original_width, original_height))
                             # Build the save path for the submatrix
                             sub_hadamard_result_path = datasetloader.build_dataset_path(image_name, original=False)
                             # Save the submatrix

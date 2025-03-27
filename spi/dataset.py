@@ -7,7 +7,7 @@ __all__ = ['SPIDataloader', 'SPIVideoLoader']
 
 class SPIDataloader:
     def __init__(self, dataset_input_base_path: str = 'datasets/mouse', 
-                 split: str = 'train', 
+                 dataset_split: str = 'train', 
                  optical_field_size: Optional[int] = None, 
                  sub_optical_field_size: Optional[int] = None, 
                  window_size: Optional[Tuple[int, int]] = None, 
@@ -17,7 +17,7 @@ class SPIDataloader:
                  aliasing: bool = False):
         
         self.dataset_input_base_path = dataset_input_base_path
-        self.split = split
+        self.dataset_split = dataset_split
         self.optical_field_size = optical_field_size
         self.sub_optical_field_size = sub_optical_field_size
         self.window_size = window_size
@@ -56,7 +56,7 @@ class SPIDataloader:
         else:
             path_parts.append('images')
         
-        path_parts.append(self.split)
+        path_parts.append(self.dataset_split)
         save_path = os.path.join(*path_parts, image_name)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         return save_path
